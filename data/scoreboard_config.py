@@ -5,6 +5,7 @@ import os
 DEFAULT_ROTATE_RATE = 15.0
 MINIMUM_ROTATE_RATE = 2.0
 DEFAULT_ROTATE_RATES = {"live": DEFAULT_ROTATE_RATE, "final": DEFAULT_ROTATE_RATE, "pregame": DEFAULT_ROTATE_RATE}
+DEFAULT_ROTATE_GAME_STATUSES = ["live", "final", "pregame"]
 
 class ScoreboardConfig:
   def __init__(self, filename):
@@ -12,6 +13,7 @@ class ScoreboardConfig:
     self.preferred_team = json.get("preferred_team")
     self.preferred_division = json.get("preferred_division", "NL Central")
     self.rotate_games = json.get("rotate_games", False)
+    self.rotate_game_statuses = json.get("rotate_game_statuses", DEFAULT_ROTATE_GAME_STATUSES)
     self.rotate_rates = json.get("rotate_rates", DEFAULT_ROTATE_RATES)
     self.display_standings = json.get("display_standings", False)
     self.scroll_until_finished = json.get("scroll_until_finished", True)
@@ -20,6 +22,23 @@ class ScoreboardConfig:
 
     #Check the rotate_rates to make sure it's valid and not silly
     self.check_rotate_rates()
+
+    # Check the rotate_game_statuses list
+    self.check_rotate_game_statuses()
+
+  def check_rotate_game_statuses(self):
+    if isinstance(self.rotate_game_statuses, list) == False:
+      print "Warning: rotate_game_statuses should be a List. Using default value. {}".format(DEFAULT_ROTATE_GAME_STATUSES)
+      self.rotate_game_statuses = DEFAULT_ROTATE_GAMES
+
+    contains_valid_screen = False
+    for game_status in DEFAULT_ROTATE_GAME_STATUSES:
+      if game_status in self.rotate_game_statuses:
+        contains_valid_screen = True
+
+    if contains_valid_screen == False:
+      print "Warning: No valid statuses contained in rotate_game_statuses. Using default value. {}".format(DEFAULT_ROTATE_GAME_STATUSES)
+      self.rotate_game_statuses = DEFAULT_ROTATE_GAME_STATUSES
 
   def check_rotate_rates(self):
     if isinstance(self.rotate_rates, dict) == False:
